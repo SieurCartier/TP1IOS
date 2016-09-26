@@ -10,7 +10,9 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
-public class DirectoryChecker extends Thread {
+import fr.lille1.ios.api.Service;
+
+public class DirectoryChecker extends Thread implements Service {
 
 	private String directory;
 	private BundleContext context;
@@ -35,11 +37,31 @@ public class DirectoryChecker extends Thread {
 
 				for (File currentFile : inDir) {
 					Long lastModified = currentFile.lastModified();
-					if (!((installedJars.contains(currentFile)) && (installedJars.get(currentFile) >= lastModified))) {
+					if (!installedJars.contains(currentFile)) {
 						// Si le bundle est inconnu ou sa date de MAJ est
 						// dépassée
 						installedJars.put(currentFile, lastModified);
-						context.installBundle(currentFile.toURI().toString());
+
+						/*
+						 * Bundle b = context.installBundle(currentFile.toURI().
+						 * toString()) ; b.start();
+						 */
+
+						System.out.println("found and installed :" + currentFile + "date :" + lastModified);
+
+					}
+					if (installedJars.get(currentFile) > lastModified) {
+						// Si le bundle est inconnu ou sa date de MAJ est
+						// dépassée
+						installedJars.put(currentFile, lastModified);
+
+						/*
+						 * Bundle b = context.installBundle(currentFile.toURI().
+						 * toString()) ; b.start();
+						 */
+
+						System.out.println("found and installed :" + currentFile + "date :" + lastModified);
+
 					}
 				}
 
@@ -48,12 +70,16 @@ public class DirectoryChecker extends Thread {
 				HashSet<File> deleted = new HashSet<File>();
 				deleted.addAll(installedJars.keySet());
 				deleted.removeAll(Arrays.asList(inDir));
-				
+
 				for (File deletedFile : deleted) {
 					installedJars.remove(deletedFile);
-					Bundle b = context.getBundle(deletedFile.toURI().toString());
-					b.stop();
-					b.uninstall();
+					/*
+					 * Bundle b =
+					 * context.getBundle(deletedFile.toURI().toString());
+					 * b.stop(); b.uninstall();
+					 */
+
+					System.out.println("found and deleted :" + deletedFile);
 				}
 
 				sleep(1000);
@@ -61,9 +87,11 @@ public class DirectoryChecker extends Thread {
 			}
 		} catch (NotDirectoryException e) {
 			System.out.println("Le répertoire : " + directory + "n'est pas un dossier");
-		} catch (BundleException e) {
+
+		} /*
+			 * catch (BundleException e) { e.printStackTrace(); }
+			 */ catch (InterruptedException e) {
 			e.printStackTrace();
-		} catch (InterruptedException e) {
 		}
 
 	}
