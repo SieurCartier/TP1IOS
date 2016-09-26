@@ -37,31 +37,15 @@ public class DirectoryChecker extends Thread implements Service {
 
 				for (File currentFile : inDir) {
 					Long lastModified = currentFile.lastModified();
-					if (!installedJars.contains(currentFile)) {
+					if ((!installedJars.containsKey(currentFile)) || (installedJars.get(currentFile) > lastModified)) {
 						// Si le bundle est inconnu ou sa date de MAJ est
 						// dépassée
 						installedJars.put(currentFile, lastModified);
 
-						/*
-						 * Bundle b = context.installBundle(currentFile.toURI().
-						 * toString()) ; b.start();
-						 */
+						Bundle b = context.installBundle(currentFile.toURI().toString());
+						b.start();
 
 						System.out.println("found and installed :" + currentFile + "date :" + lastModified);
-
-					}
-					if (installedJars.get(currentFile) > lastModified) {
-						// Si le bundle est inconnu ou sa date de MAJ est
-						// dépassée
-						installedJars.put(currentFile, lastModified);
-
-						/*
-						 * Bundle b = context.installBundle(currentFile.toURI().
-						 * toString()) ; b.start();
-						 */
-
-						System.out.println("found and installed :" + currentFile + "date :" + lastModified);
-
 					}
 				}
 
@@ -73,24 +57,19 @@ public class DirectoryChecker extends Thread implements Service {
 
 				for (File deletedFile : deleted) {
 					installedJars.remove(deletedFile);
-					/*
-					 * Bundle b =
-					 * context.getBundle(deletedFile.toURI().toString());
-					 * b.stop(); b.uninstall();
-					 */
+
+					Bundle b = context.getBundle(deletedFile.toURI().toString());
+					b.stop();
+					b.uninstall();
 
 					System.out.println("found and deleted :" + deletedFile);
 				}
 
-				sleep(1000);
-
 			}
 		} catch (NotDirectoryException e) {
-			System.out.println("Le répertoire : " + directory + "n'est pas un dossier");
+			System.out.println("Le répertoire : " + directory + " n'est pas un dossier");
 
-		} /*
-			 * catch (BundleException e) { e.printStackTrace(); }
-			 */ catch (InterruptedException e) {
+		} catch (BundleException e) {
 			e.printStackTrace();
 		}
 
