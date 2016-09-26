@@ -12,15 +12,18 @@ public class Activator implements BundleActivator {
 	private ServiceRegistration<?> sAck;
 
 	public void start(BundleContext context) throws Exception {
-		Service s = new DirectoryChecker("/home/m2miage/lemaireg/auto_deploy", context);
+
+		Service s = new DirectoryChecker("C:\\Users\\gasto\\Desktop\\test", context);
+		// Service s = new
+		// DirectoryChecker("/home/m2miage/lemaireg/auto_deploy", context);
 		s.start();
 		sAck = context.registerService(Service.class.getName(), s, null);
-		System.out.println("Bundle starts...");
+		System.out.println("Auto deploy starts...");
 	}
 
 	public void stop(BundleContext context) throws Exception {
 		sAck.unregister();
-		System.out.println("Bundle stops...");
+		System.out.println("Auto deploy stops...");
 	}
 
 }
