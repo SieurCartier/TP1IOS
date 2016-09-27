@@ -1,6 +1,8 @@
 package fr.lille1.ios.lib;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.file.NotDirectoryException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -42,10 +44,15 @@ public class DirectoryChecker extends Thread implements Service {
 						// dépassée
 						installedJars.put(currentFile, lastModified);
 
-						Bundle b = context.installBundle(currentFile.toURI().toString());
-						b.start();
+						String URI = currentFile.toURI().toString() ;
+						
+						if (installedJars.get(currentFile) > lastModified) {
+							context.getBundle(URI).update(new FileInputStream(currentFile));
+						} else {
+							context.installBundle(URI);
+						}
 
-						System.out.println("found and installed :" + currentFile + "date :" + lastModified);
+						System.out.println("found and installed :" + currentFile + " date :" + lastModified);
 					}
 				}
 
@@ -59,17 +66,21 @@ public class DirectoryChecker extends Thread implements Service {
 					installedJars.remove(deletedFile);
 
 					Bundle b = context.getBundle(deletedFile.toURI().toString());
-					b.stop();
 					b.uninstall();
 
 					System.out.println("found and deleted :" + deletedFile);
 				}
 
+				sleep(1000);
 			}
 		} catch (NotDirectoryException e) {
 			System.out.println("Le répertoire : " + directory + " n'est pas un dossier");
 
 		} catch (BundleException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 
