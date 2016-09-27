@@ -13,8 +13,11 @@ public class Activator implements BundleActivator {
 
 	public void start(BundleContext context) throws Exception {
 
+		// Change /home/m2miage/lemaireg/auto_deploy with the directory you want to be watched
+		
 		// Service s = new DirectoryChecker("C:\\Users\\gasto\\Desktop\\test",
 		// context);
+		
 		Service s = new DirectoryChecker("/home/m2miage/lemaireg/auto_deploy", context);
 		s.start();
 		sAck = context.registerService(Service.class.getName(), s, null);
